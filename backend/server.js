@@ -1,22 +1,31 @@
-const express = require('express');
+const express = require("express");
 const app = express();
-const dotenv = require('dotenv');
+const dotenv = require("dotenv");
+const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 
-const databaseConnect = require('./config/database');
+const databaseConnect = require("./config/database");
+const authRouter = require("./routes/authRoute");
+const chatRouter = require("./routes/chatRoute");
 
 dotenv.config({
-    path : 'backend/config/config.env'
+  path: "backend/config/config.env",
 });
 
-// This is the port for the backend while frontend is running on 3000
 const port = process.env.port || 5000;
 
-app.get('/', (req, res) => {
-    res.send('This is from backend sever');
+app.use(bodyParser.json());
+app.use(cookieParser());
+
+app.use("/api/chat", authRouter);
+app.use("/api/chat", chatRouter);
+
+app.get("/", (req, res) => {
+  res.send("This is from backend sever");
 });
 
 databaseConnect();
 
 app.listen(port, () => {
-    console.log(`server is running on ${port}`);
+  console.log(`server is running on ${port}`);
 });
