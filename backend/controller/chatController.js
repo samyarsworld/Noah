@@ -5,12 +5,21 @@ const fs = require("fs");
 
 module.exports.getFriends = async (req, res) => {
   const currentUserId = req.currentUserId;
+  let friendsInfo = [];
   try {
-    const allFriends = await UserModel.find({});
-    const filterFriends = allFriends.filter(
-      (friend) => friend.id !== currentUserId
-    );
-    res.status(200).json({ success: true, friends: filterFriends });
+    const friends = await UserModel.find({ _id: { $ne: currentUserId } });
+    for (let i = 0; i < friends.length; i++) {
+      let lastMessage = await getLastMessage(currentUserId, friends[i].id);
+      friendsInfo = [
+        ...friendsInfo,
+        {
+          friendInfo: friends[i],
+          lastMessage: lastMessage,
+        },
+      ];
+    }
+
+    res.status(200).json({ success: true, friends: friendsInfo });
   } catch (error) {
     res.status(500).json({
       error: {
@@ -54,13 +63,6 @@ module.exports.getMessageFromDB = async (req, res) => {
       { senderId: currentUserId, receiverId: senderId },
       { senderId: senderId, receiverId: currentUserId },
     ]);
-    // OR
-    // let allMessage = await MessageModel.find({});
-    // allMessage = allMessage.filter(
-    //   (m) =>
-    //     (m.senderId === currentUserId && m.receiverId === senderId) ||
-    //     (m.receiverId === currentUserId && m.senderId === senderId)
-    // );
 
     res.status(201).json({
       success: true,
@@ -117,4 +119,20 @@ module.exports.sendImageMessage = (req, res) => {
       });
     }
   });
+};
+
+const getLastMessage = async (currentUserId, friendId) => {
+  const lastMessage = await MessageModel.findOne()
+    .or([
+      { senderId: currentUserId, receiverId: friendId },
+      { senderId: friendId, receiverId: currentUserId },
+    ])
+    .sort({
+      updatedAt: -1,
+    });
+
+  if (lastMessage) {
+    return lastMessage.message.text ? lastMessage.message.text : "img message";
+  }
+  return "";
 };
