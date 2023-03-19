@@ -21,27 +21,15 @@ const userRemove = (socketId) => {
   users = users.filter((user) => user.socketId !== socketId);
 };
 
+const userLogout = (userId) => {
+  users = users.filter((user) => user.userId !== userId);
+};
+
 io.on("connection", (socket) => {
   console.log("User is connected");
   socket.on("addUser", (userId, userInfo) => {
     addUser(userId, socket.id, userInfo);
     io.emit("getUser", users);
-  });
-  socket.on("sendMessage", (data) => {
-    const user = findReceiver(data.receiverId);
-
-    if (user !== undefined) {
-      socket.to(user.socketId).emit("getMessage", {
-        senderId: data.senderId,
-        senderName: data.senderName,
-        receiverId: data.receiverId,
-        createAt: data.time,
-        message: {
-          text: data.message.text,
-          image: data.message.image,
-        },
-      });
-    }
   });
 
   socket.on("typingMessage", (data) => {
@@ -53,6 +41,38 @@ io.on("connection", (socket) => {
         message: data.message,
       });
     }
+  });
+
+  socket.on("sendMessage", (data) => {
+    const user = findReceiver(data.receiverId);
+    if (user !== undefined) {
+      socket.to(user.socketId).emit("getMessage", data);
+    }
+  });
+
+  socket.on("messageSeen", (message) => {
+    const user = findReceiver(message.senderId);
+    if (user !== undefined) {
+      socket.to(user.socketId).emit("messageSeenResponse", message);
+    }
+  });
+
+  socket.on("messageDelivered", (message) => {
+    const user = findReceiver(message.senderId);
+    if (user !== undefined) {
+      socket.to(user.socketId).emit("messageDeliveredResponse", message);
+    }
+  });
+
+  socket.on("seen", (data) => {
+    const user = findReceiver(data.senderId);
+    if (user !== undefined) {
+      socket.to(user.socketId).emit("seenSuccess", data);
+    }
+  });
+
+  socket.on("logout", (userId) => {
+    userLogout(userId);
   });
 
   socket.on("disconnect", () => {

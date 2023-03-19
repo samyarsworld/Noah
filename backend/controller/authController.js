@@ -201,6 +201,7 @@ module.exports.userLogin = async (req, res) => {
 };
 
 module.exports.userLogout = (req, res) => {
+  console.log("meh3");
   res.status(200).cookie("authToken", "").json({
     successMessage: "Logout successful.",
   });

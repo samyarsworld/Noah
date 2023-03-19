@@ -9,12 +9,12 @@ module.exports.getFriends = async (req, res) => {
   try {
     const friends = await UserModel.find({ _id: { $ne: currentUserId } });
     for (let i = 0; i < friends.length; i++) {
-      let lastMessage = await getLastMessage(currentUserId, friends[i].id);
+      let lastMessageInfo = await getLastMessage(currentUserId, friends[i].id);
       friendsInfo = [
         ...friendsInfo,
         {
           friendInfo: friends[i],
-          lastMessage: lastMessage,
+          lastMessageInfo: lastMessageInfo,
         },
       ];
     }
@@ -131,8 +131,45 @@ const getLastMessage = async (currentUserId, friendId) => {
       updatedAt: -1,
     });
 
-  if (lastMessage) {
-    return lastMessage.message.text ? lastMessage.message.text : "img message";
-  }
-  return "";
+  return lastMessage;
+};
+
+module.exports.messageSeen = async (req, res) => {
+  const messageId = req.body._id;
+
+  await MessageModel.findByIdAndUpdate(messageId, {
+    status: "seen",
+  })
+    .then(() => {
+      res.status(200).json({
+        success: true,
+      });
+    })
+    .catch(() => {
+      res.status(500).json({
+        error: {
+          errorMessage: "Internal Server Error",
+        },
+      });
+    });
+};
+
+module.exports.delivaredMessage = async (req, res) => {
+  const messageId = req.body._id;
+
+  await MessageModel.findByIdAndUpdate(messageId, {
+    status: "delivered",
+  })
+    .then(() => {
+      res.status(200).json({
+        success: true,
+      });
+    })
+    .catch(() => {
+      res.status(500).json({
+        error: {
+          errorMessage: "Internal Server Error",
+        },
+      });
+    });
 };
