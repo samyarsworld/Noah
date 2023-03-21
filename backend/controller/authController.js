@@ -1,14 +1,16 @@
-const formiable = require("formidable");
+const formidable = require("formidable");
 const validator = require("validator");
 const fs = require("fs");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const console = require("console");
 
 const UserModel = require("../models/authModel");
 
+const passwordPattern =
+  /^(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])(?=.*[0-9])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]{8,}$/;
+
 module.exports.userRegister = async (req, res) => {
-  const form = formiable();
+  const form = formidable();
 
   form.parse(req, async (err, fields, files) => {
     const { username, email, password, confirmPassword } = fields;
@@ -38,6 +40,11 @@ module.exports.userRegister = async (req, res) => {
     }
     if (Object.keys(files).length === 0) {
       error.push("Please provide your profile image");
+    }
+    if (password && !passwordPattern.test(password)) {
+      error.push(
+        "Your password should at least contain a number, a character, and a special character"
+      );
     }
 
     if (error.length > 0) {
@@ -121,7 +128,6 @@ module.exports.userRegister = async (req, res) => {
 
 module.exports.userLogin = async (req, res) => {
   const error = [];
-
   const { email, password } = req.body;
 
   if (!email) {
@@ -201,7 +207,6 @@ module.exports.userLogin = async (req, res) => {
 };
 
 module.exports.userLogout = (req, res) => {
-  console.log("meh3");
   res.status(200).cookie("authToken", "").json({
     successMessage: "Logout successful.",
   });

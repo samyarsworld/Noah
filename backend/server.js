@@ -20,10 +20,6 @@ app.use(cookieParser());
 app.use("/api/chat", authRouter);
 app.use("/api/chat", chatRouter);
 
-app.get("/", (req, res) => {
-  res.send("This is from backend sever");
-});
-
 databaseConnect();
 
 app.listen(port, () => {

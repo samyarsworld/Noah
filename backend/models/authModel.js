@@ -8,16 +8,16 @@ const userSchema = new Schema(
     },
     password: {
       type: String,
-      require: true,
+      required: true,
       select: false,
     },
     email: {
       type: String,
-      require: true,
+      required: true,
     },
     image: {
       type: String,
-      require: true,
+      required: true,
     },
   },
   { timestamps: true }

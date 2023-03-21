@@ -21,15 +21,13 @@ const userRemove = (socketId) => {
   users = users.filter((user) => user.socketId !== socketId);
 };
 
-const userLogout = (userId) => {
-  users = users.filter((user) => user.userId !== userId);
-};
-
+// Socket setup
 io.on("connection", (socket) => {
-  console.log("User is connected");
+  console.log(`A user is connected.`);
+
   socket.on("addUser", (userId, userInfo) => {
     addUser(userId, socket.id, userInfo);
-    io.emit("getUser", users);
+    io.emit("getOnlineUsers", users);
   });
 
   socket.on("typingMessage", (data) => {
@@ -71,13 +69,14 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("logout", (userId) => {
-    userLogout(userId);
+  socket.on("logout", () => {
+    userRemove(socket.id);
+    io.emit("getOnlineUsers", users);
   });
 
   socket.on("disconnect", () => {
     console.log("User is disconnected ");
     userRemove(socket.id);
-    io.emit("getUser", users);
+    io.emit("getOnlineUsers", users);
   });
 });
