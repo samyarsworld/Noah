@@ -5,7 +5,7 @@ module.exports.authMiddleware = async (req, res, next) => {
 
   if (authToken) {
     const deCodeToken = await jwt.verify(authToken, process.env.SECRET);
-    req.currentUserId = deCodeToken.id;
+    req.userId = deCodeToken.id;
     next();
   } else {
     res.status(400).json({

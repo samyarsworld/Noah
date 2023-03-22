@@ -6,15 +6,15 @@ const io = require("socket.io")(8000, {
 });
 
 let users = [];
-const addUser = (userId, socketId, userInfo) => {
-  const checkUser = users.some((user) => user.userId === userId);
+const addUser = (id, socketId, userInfo) => {
+  const checkUser = users.some((user) => user.id === id);
   if (!checkUser) {
-    users.push({ userId, socketId, userInfo });
+    users.push({ id, socketId, userInfo });
   }
 };
 
 const findReceiver = (id) => {
-  return users.find((user) => user.userId === id);
+  return users.find((user) => user.id === id);
 };
 
 const userRemove = (socketId) => {
@@ -25,15 +25,15 @@ const userRemove = (socketId) => {
 io.on("connection", (socket) => {
   console.log(`A user is connected.`);
 
-  socket.on("addUser", (userId, userInfo) => {
-    addUser(userId, socket.id, userInfo);
+  socket.on("addUser", (id, userInfo) => {
+    addUser(id, socket.id, userInfo);
     io.emit("getOnlineUsers", users);
   });
 
   socket.on("typingMessage", (data) => {
-    const user = findReceiver(data.receiverId);
-    if (user !== undefined) {
-      socket.to(user.socketId).emit("getTypingMessage", {
+    const friend = findReceiver(data.receiverId);
+    if (friend !== undefined) {
+      socket.to(friend.socketId).emit("getTypingMessage", {
         senderId: data.senderId,
         receiverId: data.receiverId,
         message: data.message,

@@ -4,12 +4,13 @@ const formidable = require("formidable");
 const fs = require("fs");
 
 module.exports.getFriends = async (req, res) => {
-  const currentUserId = req.currentUserId;
+  const userId = req.userId;
   let friendsInfo = [];
   try {
-    const friends = await UserModel.find({ _id: { $ne: currentUserId } });
+    const friends = await UserModel.find({ _id: { $ne: userId } });
+
     for (let i = 0; i < friends.length; i++) {
-      let lastMessageInfo = await getLastMessage(currentUserId, friends[i].id);
+      let lastMessageInfo = await getLastMessage(userId, friends[i]._id);
       friendsInfo = [
         ...friendsInfo,
         {
@@ -31,7 +32,7 @@ module.exports.getFriends = async (req, res) => {
 
 module.exports.uploadMessageToDB = async (req, res) => {
   const { senderName, receiverId, message } = req.body;
-  const senderId = req.currentUserId;
+  const senderId = req.userId;
   try {
     const sentMessage = await MessageModel.create({
       senderId: senderId,
@@ -56,12 +57,12 @@ module.exports.uploadMessageToDB = async (req, res) => {
 };
 
 module.exports.getMessageFromDB = async (req, res) => {
-  const currentUserId = req.currentUserId;
+  const userId = req.userId;
   const senderId = req.params.id;
   try {
     const allMessages = await await MessageModel.find().or([
-      { senderId: currentUserId, receiverId: senderId },
-      { senderId: senderId, receiverId: currentUserId },
+      { senderId: userId, receiverId: senderId },
+      { senderId: senderId, receiverId: userId },
     ]);
 
     res.status(201).json({
@@ -79,7 +80,7 @@ module.exports.getMessageFromDB = async (req, res) => {
 
 module.exports.sendImageMessage = (req, res) => {
   const form = formidable();
-  const senderId = req.currentUserId;
+  const senderId = req.userId;
 
   form.parse(req, (err, fields, files) => {
     const { senderName, receiverId, imageName } = fields;
@@ -121,11 +122,11 @@ module.exports.sendImageMessage = (req, res) => {
   });
 };
 
-const getLastMessage = async (currentUserId, friendId) => {
+const getLastMessage = async (userId, friendId) => {
   const lastMessage = await MessageModel.findOne()
     .or([
-      { senderId: currentUserId, receiverId: friendId },
-      { senderId: friendId, receiverId: currentUserId },
+      { senderId: userId, receiverId: friendId },
+      { senderId: friendId, receiverId: userId },
     ])
     .sort({
       updatedAt: -1,
@@ -154,7 +155,7 @@ module.exports.messageSeen = async (req, res) => {
     });
 };
 
-module.exports.delivaredMessage = async (req, res) => {
+module.exports.deliveredMessage = async (req, res) => {
   const messageId = req.body._id;
 
   await MessageModel.findByIdAndUpdate(messageId, {
