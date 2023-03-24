@@ -1,8 +1,11 @@
 const formidable = require("formidable");
 const validator = require("validator");
 const fs = require("fs");
+const https = require("https");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+
+const { Configuration, OpenAIApi } = require("openai");
 
 const UserModel = require("../models/authModel");
 
@@ -13,7 +16,7 @@ module.exports.userRegister = async (req, res) => {
   const form = formidable();
 
   form.parse(req, async (err, fields, files) => {
-    const { username, email, password, confirmPassword } = fields;
+    const { username, email, password, confirmPassword, genImage } = fields;
     const { image } = files;
     const error = [];
 
@@ -54,13 +57,12 @@ module.exports.userRegister = async (req, res) => {
         },
       });
     } else {
-      const getImageName = files.image.originalFilename;
+      const getImageName = image.originalFilename;
       const randNumber = Math.floor(Math.random() * 99999);
       const newImageName = randNumber + getImageName;
-      files.image.originalFilename = newImageName;
+      image.originalFilename = newImageName;
       const newPath =
-        __dirname +
-        `/../../frontend/public/images/${files.image.originalFilename}`;
+        __dirname + `/../../frontend/public/images/${image.originalFilename}`;
 
       try {
         const checkUser = await UserModel.findOne({
@@ -73,13 +75,13 @@ module.exports.userRegister = async (req, res) => {
             },
           });
         } else {
-          fs.copyFile(files.image.filepath, newPath, async (err) => {
+          fs.copyFile(image.filepath, newPath, async (err) => {
             if (!err) {
               const user = await UserModel.create({
                 username,
                 email,
                 password: await bcrypt.hash(password, 10),
-                image: files.image.originalFilename,
+                image: image.originalFilename,
               });
 
               const token = jwt.sign(
@@ -210,4 +212,32 @@ module.exports.userLogout = (req, res) => {
   res.status(200).cookie("authToken", "").json({
     successMessage: "Logout successful.",
   });
+};
+
+////
+
+module.exports.genImage = async (req, res) => {
+  const configuration = new Configuration({
+    apiKey: process.env.REACT_APP_API_KEY_DALLE,
+  });
+  const openai = new OpenAIApi(configuration);
+  try {
+    const { genImagePrompt } = req.body;
+    const imageParameters = {
+      prompt: genImagePrompt,
+      n: 1,
+      size: "256x256",
+    };
+
+    const response = await openai.createImage(imageParameters);
+    const genImageUrl = response.data.data[0].url;
+    res.status(201).json({ genImageUrl: genImageUrl });
+  } catch (error) {
+    console.log(error.response.data.error.message);
+    res.status(400).json({
+      error: {
+        errorMessage: ["DALL-E Error."],
+      },
+    });
+  }
 };

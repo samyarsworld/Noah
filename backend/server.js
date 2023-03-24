@@ -23,5 +23,5 @@ app.use("/api/chat", chatRouter);
 databaseConnect();
 
 app.listen(port, () => {
-  console.log(`server is running on ${port}`);
+  console.log(`Server is running on http://localhost:5000`);
 });
