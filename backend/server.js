@@ -33,5 +33,5 @@ databaseConnect();
 socketServer(server);
 
 server.listen(port, () => {
-  console.log(`Server is running on http://localhost:5000/`);
+  console.log(`Server running on http://localhost:5000/`);
 });
