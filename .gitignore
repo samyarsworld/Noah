@@ -1,4 +1,4 @@
 /node_modules
 .env
-venv
+/venv
 config.env
