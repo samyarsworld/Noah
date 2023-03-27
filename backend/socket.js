@@ -1,6 +1,4 @@
 const socketServer = (server) => {
-  console.log("emh");
-
   const io = require("socket.io")(server, {
     cors: {
       origin: "*",

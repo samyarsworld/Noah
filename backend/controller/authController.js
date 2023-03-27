@@ -57,6 +57,7 @@ module.exports.userRegister = async (req, res) => {
       const checkUser = await UserModel.findOne({
         email: email,
       });
+
       if (checkUser) {
         res.status(404).json({
           error: {

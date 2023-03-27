@@ -12,12 +12,12 @@ const authRouter = require("./routes/authRoute");
 const chatRouter = require("./routes/chatRoute");
 
 dotenv.config({
-  path: "backend/config/config.env",
+  path: "config/config.env",
 });
 
 const port = process.env.PORT || 5000;
 
-// app.use(cors());
+app.use(cors());
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(cookieParser());
 
