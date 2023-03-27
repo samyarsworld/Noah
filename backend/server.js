@@ -2,6 +2,7 @@ const express = require("express");
 const app = express();
 const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
+
 const cookieParser = require("cookie-parser");
 
 const databaseConnect = require("./config/database");
@@ -14,7 +15,9 @@ dotenv.config({
 
 const port = process.env.port || 5000;
 
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "10mb" }));
+// app.use(bodyParser.json());
+
 app.use(cookieParser());
 
 app.use("/api/chat", authRouter);
@@ -23,5 +26,5 @@ app.use("/api/chat", chatRouter);
 databaseConnect();
 
 app.listen(port, () => {
-  console.log(`Server is running on http://localhost:5000`);
+  console.log(`Server is running on http://localhost:5000/`);
 });

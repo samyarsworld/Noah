@@ -1,7 +1,6 @@
 const UserModel = require("../models/authModel");
 const MessageModel = require("../models/chatModel");
-const formidable = require("formidable");
-const fs = require("fs");
+const { cloudinary } = require("../utils/cloudinary");
 
 module.exports.getFriends = async (req, res) => {
   const userId = req.userId;
@@ -78,48 +77,37 @@ module.exports.getMessageFromDB = async (req, res) => {
   }
 };
 
-module.exports.sendImageMessage = (req, res) => {
-  const form = formidable();
+module.exports.sendImageMessage = async (req, res) => {
   const senderId = req.userId;
 
-  form.parse(req, (err, fields, files) => {
-    const { senderName, receiverId, imageName } = fields;
+  try {
+    const { senderName, receiverId, image } = req.body;
+    const resImage = await cloudinary.uploader.upload(image, {
+      folder: "image_message",
+      width: 256,
+      height: 256,
+    });
 
-    const newPath = __dirname + `/../../frontend/public/images/${imageName}`;
-    files.image.originalFilename = imageName;
-
-    try {
-      fs.copyFile(files.image.filepath, newPath, async (err) => {
-        if (err) {
-          res.status(500).json({
-            error: {
-              errorMessage: "Image upload fail",
-            },
-          });
-        } else {
-          const sendMessage = await MessageModel.create({
-            senderId: senderId,
-            senderName: senderName,
-            receiverId: receiverId,
-            message: {
-              text: "",
-              image: files.image.originalFilename,
-            },
-          });
-          res.status(201).json({
-            success: true,
-            message: sendMessage,
-          });
-        }
-      });
-    } catch (error) {
-      res.status(500).json({
-        error: {
-          errorMessage: "Internal Server Error",
-        },
-      });
-    }
-  });
+    const sendMessage = await MessageModel.create({
+      senderId: senderId,
+      senderName: senderName,
+      receiverId: receiverId,
+      message: {
+        text: "",
+        image: resImage.url,
+      },
+    });
+    res.status(201).json({
+      success: true,
+      message: sendMessage,
+    });
+  } catch (error) {
+    res.status(500).json({
+      error: {
+        errorMessage: "Internal Server Error",
+      },
+    });
+  }
 };
 
 const getLastMessage = async (userId, friendId) => {

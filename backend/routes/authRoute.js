@@ -4,6 +4,7 @@ const {
   userLogout,
   genImage,
 } = require("../controller/authController");
+
 const { authMiddleware } = require("../middleware/authMiddleware");
 const router = require("express").Router();
 
