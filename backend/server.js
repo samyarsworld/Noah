@@ -21,6 +21,9 @@ app.use(cors());
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(cookieParser());
 
+app.get("/", (req, res) => {
+  res.send("Hello, World!");
+});
 app.use("/api/chat", authRouter);
 app.use("/api/chat", chatRouter);
 
