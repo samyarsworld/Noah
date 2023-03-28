@@ -75,7 +75,7 @@ module.exports.userRegister = async (req, res) => {
           username,
           email,
           password: await bcrypt.hash(password, 10),
-          image: resImage.url,
+          image: resImage.secure_url,
         });
 
         const token = jwt.sign(

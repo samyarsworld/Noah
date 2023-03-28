@@ -94,7 +94,7 @@ module.exports.sendImageMessage = async (req, res) => {
       receiverId: receiverId,
       message: {
         text: "",
-        image: resImage.url,
+        image: resImage.secure_url,
       },
     });
     res.status(201).json({
