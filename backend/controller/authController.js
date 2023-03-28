@@ -13,9 +13,7 @@ const passwordPattern =
 
 module.exports.userRegister = async (req, res) => {
   const { username, email, password, confirmPassword, image } = req.body;
-
   const error = [];
-
   if (!username) {
     error.push("Please provide your username");
   }

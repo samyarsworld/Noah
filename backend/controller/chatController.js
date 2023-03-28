@@ -29,9 +29,8 @@ module.exports.getFriends = async (req, res) => {
   }
 };
 
-module.exports.uploadMessageToDB = async (req, res) => {
-  const { senderName, receiverId, message } = req.body;
-  const senderId = req.userId;
+module.exports.sendTextMessage = async (req, res) => {
+  const { senderName, senderId, receiverId, message } = req.body;
   try {
     const sentMessage = await MessageModel.create({
       senderId: senderId,
@@ -56,8 +55,8 @@ module.exports.uploadMessageToDB = async (req, res) => {
 };
 
 module.exports.getMessageFromDB = async (req, res) => {
-  const userId = req.userId;
-  const senderId = req.params.id;
+  const userId = req.query.userId;
+  const senderId = req.query.senderId;
   try {
     const allMessages = await await MessageModel.find().or([
       { senderId: userId, receiverId: senderId },
@@ -78,10 +77,8 @@ module.exports.getMessageFromDB = async (req, res) => {
 };
 
 module.exports.sendImageMessage = async (req, res) => {
-  const senderId = req.userId;
-
+  const { senderName, senderId, receiverId, image } = req.body;
   try {
-    const { senderName, receiverId, image } = req.body;
     const resImage = await cloudinary.uploader.upload(image, {
       folder: "image_message",
       width: 256,
