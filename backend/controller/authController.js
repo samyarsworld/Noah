@@ -96,6 +96,9 @@ module.exports.userRegister = async (req, res) => {
           expires: new Date(
             Date.now() + process.env.COOKIE_EXP * 24 * 60 * 60 * 1000
           ),
+          httpOnly: true,
+          secure: true,
+          sameSite: "none",
         };
 
         res.status(201).cookie("authToken", token, options).json({
@@ -163,6 +166,9 @@ module.exports.userLogin = async (req, res) => {
             expires: new Date(
               Date.now() + process.env.COOKIE_EXP * 24 * 60 * 60 * 1000
             ),
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
           };
 
           res.status(200).cookie("authToken", token, options).json({
@@ -194,7 +200,13 @@ module.exports.userLogin = async (req, res) => {
 };
 
 module.exports.userLogout = (req, res) => {
-  res.status(200).cookie("authToken", "").json({
+  const options = {
+    expires: new Date(0),
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+  };
+  res.status(200).cookie("authToken", "", options).json({
     successMessage: "Logout successful.",
   });
 };
