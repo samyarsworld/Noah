@@ -3,7 +3,7 @@ const MessageModel = require("../models/chatModel");
 const { cloudinary } = require("../utils/cloudinary");
 
 module.exports.getFriends = async (req, res) => {
-  const userId = req.userId;
+  const { userId } = req.body;
   let friendsInfo = [];
   try {
     const friends = await UserModel.find({ _id: { $ne: userId } });
@@ -55,10 +55,9 @@ module.exports.sendTextMessage = async (req, res) => {
 };
 
 module.exports.getMessageFromDB = async (req, res) => {
-  const userId = req.query.userId;
-  const senderId = req.query.senderId;
+  const { userId, senderId } = req.body;
   try {
-    const allMessages = await await MessageModel.find().or([
+    const allMessages = await MessageModel.find().or([
       { senderId: userId, receiverId: senderId },
       { senderId: senderId, receiverId: userId },
     ]);

@@ -9,10 +9,10 @@ const {
   deliveredMessage,
 } = require("../controller/chatController");
 
-router.get("/get-friends", authMiddleware, getFriends);
+router.post("/get-friends", authMiddleware, getFriends);
 router.post("/send-message", authMiddleware, sendTextMessage);
 router.post("/send-image-message", authMiddleware, sendImageMessage);
-router.get("/get-message", authMiddleware, getMessageFromDB);
+router.post("/get-message", authMiddleware, getMessageFromDB);
 router.post("/seen-message", authMiddleware, messageSeen);
 router.post("/delivered-message", authMiddleware, deliveredMessage);
 
