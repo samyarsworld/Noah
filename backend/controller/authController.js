@@ -1,5 +1,4 @@
 const validator = require("validator");
-const https = require("https");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { cloudinary } = require("../utils/cloudinary");
@@ -14,6 +13,7 @@ const passwordPattern =
 module.exports.userRegister = async (req, res) => {
   const { username, email, password, confirmPassword, image } = req.body;
   const error = [];
+
   if (!username) {
     error.push("Please provide your username");
   }
@@ -100,7 +100,7 @@ module.exports.userRegister = async (req, res) => {
         };
 
         res.status(201).cookie("authToken", token, options).json({
-          successMessage: "Your registeration was successful",
+          successMessage: "Your registration was successful!",
           token,
         });
       }
@@ -214,24 +214,23 @@ module.exports.genImage = async (req, res) => {
     apiKey: process.env.REACT_APP_API_KEY_DALLE,
   });
   const openai = new OpenAIApi(configuration);
+
   try {
     const { genImagePrompt } = req.body;
     const imageParameters = {
       prompt: genImagePrompt,
       n: 1,
       size: "256x256",
-      response_format: "b64_json",
     };
-
     const response = await openai.createImage(imageParameters);
+
     const genImg = response.data.data[0].b64_json;
 
     res.status(201).json({ genImg: `data:image/jpeg;base64,${genImg}` });
   } catch (error) {
-    console.log(error);
     res.status(400).json({
       error: {
-        errorMessage: ["DALL-E Error."],
+        errorMessage: error,
       },
     });
   }

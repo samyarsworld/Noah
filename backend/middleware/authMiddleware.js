@@ -9,10 +9,5 @@ module.exports.authMiddleware = async (req, res, next) => {
     next();
   } else {
     next();
-    // res.status(400).json({
-    //   error: {
-    //     errorMessage: ["Please login first"],
-    //   },
-    // });
   }
 };
