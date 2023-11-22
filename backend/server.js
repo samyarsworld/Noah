@@ -19,7 +19,11 @@ const port = process.env.PORT || 5000;
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "https://galactchat.netlify.app"],
+    origin: [
+      "http://localhost:3000",
+      "https://galactchat.netlify.app",
+      "https://mygchat.netlify.app",
+    ],
     credentials: true,
   })
 );
