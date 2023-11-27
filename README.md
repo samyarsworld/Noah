@@ -1,6 +1,6 @@
 # Project Title: Real-time Chat Application
 
-### To use the application, head to https://galactchat.netlify.app/ and register. Welcome to the Galact Chat.
+### To use the application, head to https://mygchat.netlify.app/ and register. Welcome to the Galactic Chat.
 
 
 ## Index
@@ -20,7 +20,7 @@
 <a name="about"></a>
 ## About
 
-This is a real-time chat application made using React and Redux as frontend, and Node.js, MongoDB Atlas as backend. Socket.io library is used for real-time data exchange. The project includes an authentication page with registry that in addition to normal register and login info, it has a section to create AI-made pictures for your profile picture using Open AI DallE. Also, files are stored in Cloudinary cloud storage. The chat includes all chat functionality like real-time typing, notifications, messages, image message, emojis, last seen, seen, or delivered notification, and media storage for each chat.
+This is a real-time chat application made using React and Redux as frontend, and Node.js, MongoDB Atlas as backend. Socket.io library is used for real-time data exchange. The project includes an authentication page with the registry that in addition to normal register and login info, it has a section to create AI-made pictures for your profile picture using Open AI DallE. Also, files are stored in Cloudinary cloud storage. The chat includes all chat functionality like real-time typing, notifications, messages, image messages, emojis, last seen, seen, or delivered notification, and media storage for each chat.
 
 
 <a name="demo"></a>
