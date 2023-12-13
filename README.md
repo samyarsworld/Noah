@@ -1,6 +1,6 @@
 # Project Title: Real-time Chat Application
 
-### To use the application, head to https://mygchat.netlify.app/ and register. Welcome to the Galactic Chat.
+### To use the application, head to https://galactchat.netlify.app/ and register. Welcome to the Galactic Chat.
 
 
 ## Index
