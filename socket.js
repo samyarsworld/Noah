@@ -1,7 +1,10 @@
 const socketServer = (server) => {
   const io = require("socket.io")(server, {
     cors: {
-      origin: "*",
+      origin: [
+        "http://localhost:3000",
+        "https://galactchat.netlify.app"
+      ],
       methods: ["GET", "POST"],
     },
   });
@@ -24,8 +27,9 @@ const socketServer = (server) => {
 
   // Socket setup
   io.on("connection", (socket) => {
-    console.log(`A user is connected.`);
+    console.log(`A user is connected with id ${socket.id}.`);
 
+    // Custom events
     socket.on("addUser", (id, userInfo) => {
       addUser(id, socket.id, userInfo);
       io.emit("getOnlineUsers", users);
@@ -75,6 +79,7 @@ const socketServer = (server) => {
       io.emit("getOnlineUsers", users);
     });
 
+    // Disconnect event
     socket.on("disconnect", () => {
       console.log("User is disconnected ");
       userRemove(socket.id);

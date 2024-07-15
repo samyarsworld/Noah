@@ -1,37 +1,37 @@
 const express = require("express");
-const app = express();
-const dotenv = require("dotenv");
-const bodyParser = require("body-parser");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const http = require("http");
 const socketServer = require("./socket");
+const http = require("http");
 
 const databaseConnect = require("./config/database");
 const authRouter = require("./routes/authRoute");
 const chatRouter = require("./routes/chatRoute");
 
-dotenv.config({
-  path: "config/config.env",
-});
+const app = express();
+const bodyParser = require("body-parser");
+
+require('dotenv').config();
 
 const port = process.env.PORT || 5000;
 
+// Alow cross origin request sharing
 app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://galactchat.netlify.app",
-      "https://mygchat.netlify.app",
+      "https://galactchat.netlify.app"
     ],
     credentials: true,
   })
 );
 
+// Configure Express to trust the first proxy in front of the app (CDN provider)
 app.set("trust proxy", 1);
 
+// Define middlewares
 app.use(bodyParser.json({ limit: "10mb" }));
-app.use(cookieParser());
+app.use(cookieParser()); // make cookies available via req.cookies
 
 app.get("/", (req, res) => {
   res.send("Hello, World!");
@@ -45,5 +45,5 @@ databaseConnect();
 socketServer(server);
 
 server.listen(port, () => {
-  console.log(`Server running on http://localhost:5000/`);
+  console.log(`Server running on http://localhost:${port}`);
 });

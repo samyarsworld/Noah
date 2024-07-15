@@ -1,9 +1,6 @@
-const validator = require("validator");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { cloudinary } = require("../utils/cloudinary");
-
-const { Configuration, OpenAIApi } = require("openai");
 
 const UserModel = require("../models/authModel");
 
@@ -11,17 +8,11 @@ const passwordPattern =
   /^(?=.*[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?])(?=.*[0-9])(?=.*[a-zA-Z])[a-zA-Z0-9!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]{8,}$/;
 
 module.exports.userRegister = async (req, res) => {
-  const { username, email, password, confirmPassword, image } = req.body;
+  const { username, password, confirmPassword, image } = req.body;
   const error = [];
 
   if (!username) {
     error.push("Please provide your username");
-  }
-  if (!email) {
-    error.push("Please provide your email");
-  }
-  if (email && !validator.isEmail(email)) {
-    error.push("Please provide a valid email address");
   }
   if (!password) {
     error.push("Please provide your password");
@@ -38,11 +29,12 @@ module.exports.userRegister = async (req, res) => {
   if (!image) {
     error.push("Please provide your profile image");
   }
-  if (password && !passwordPattern.test(password)) {
-    error.push(
-      "Your password should at least contain a number, a character, and a special character"
-    );
-  }
+  // if (password && !passwordPattern.test(password)) {
+  //   error.push(
+  //     "Your password should at least contain a number, a character, and a special character"
+  //   );
+  // }
+
 
   if (error.length > 0) {
     res.status(400).json({
@@ -52,34 +44,38 @@ module.exports.userRegister = async (req, res) => {
     });
   } else {
     try {
+
       const checkUser = await UserModel.findOne({
-        email: email,
+        username: username,
       });
+
 
       if (checkUser) {
         res.status(404).json({
           error: {
-            errorMessage: ["There is an account associated with this email"],
+            errorMessage: ["There is an account associated with this username"],
           },
         });
       } else {
+        
         const resImage = await cloudinary.uploader.upload(image, {
           folder: "profile_img",
           width: 256,
           height: 256,
         });
 
+
         const user = await UserModel.create({
           username,
-          email,
           password: await bcrypt.hash(password, 10),
           image: resImage.secure_url,
         });
 
+        console.log(user)
+
         const token = jwt.sign(
           {
             id: user._id,
-            email: user.email,
             username: user.username,
             image: user.image,
             registerTime: user.createdAt,
@@ -90,6 +86,8 @@ module.exports.userRegister = async (req, res) => {
           }
         );
 
+        console.log(token)
+
         const options = {
           expires: new Date(
             Date.now() + process.env.COOKIE_EXP * 24 * 60 * 60 * 1000
@@ -99,7 +97,7 @@ module.exports.userRegister = async (req, res) => {
           sameSite: "none",
         };
 
-        res.status(201).cookie("authToken", token, options).json({
+        res.status(200).cookie("authToken", token, options).json({
           successMessage: "Your registration was successful!",
           token,
         });
@@ -116,16 +114,13 @@ module.exports.userRegister = async (req, res) => {
 
 module.exports.userLogin = async (req, res) => {
   const error = [];
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
-  if (!email) {
-    error.push("Please provide your email");
+  if (!username) {
+    error.push("Please provide your username");
   }
   if (!password) {
-    error.push("Please provide your passowrd");
-  }
-  if (email && !validator.isEmail(email)) {
-    error.push("Please provide a valid email");
+    error.push("Please provide your password");
   }
 
   if (error.length > 0) {
@@ -137,7 +132,7 @@ module.exports.userLogin = async (req, res) => {
   } else {
     try {
       const checkUser = await UserModel.findOne({
-        email: email,
+        username: username,
       }).select("+password");
 
       if (checkUser) {
@@ -150,7 +145,6 @@ module.exports.userLogin = async (req, res) => {
           const token = jwt.sign(
             {
               id: checkUser._id,
-              email: checkUser.email,
               username: checkUser.username,
               image: checkUser.image,
               registerTime: checkUser.createdAt,
@@ -183,7 +177,7 @@ module.exports.userLogin = async (req, res) => {
       } else {
         res.status(400).json({
           error: {
-            errorMessage: ["Email not found"],
+            errorMessage: ["Username not found"],
           },
         });
       }
